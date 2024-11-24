@@ -1,20 +1,15 @@
-import passport from "passport";
-import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-import mongoose from "mongoose";
-import User from "../models/User.js";
-import dotenv from "dotenv";
-
-dotenv.config({ path: "../../.env" });
-
-
-
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const mongoose = require("mongoose");
+const User = require("../models/User");
+require("dotenv").config({ path: "../.env" });
 
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "https://xeno-backend-ovva.onrender.com/api/auth/google/callback",
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
     },
     async (accessToken, refreshToken, profile, done) => {
       const newUser = {
@@ -63,7 +58,4 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-export default passport;
-
-
-
+module.exports = passport;

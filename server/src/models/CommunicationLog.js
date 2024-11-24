@@ -1,14 +1,12 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
 
-const { Schema } = mongoose;
-
-const communicationLogSchema = new Schema({
-  audience: { type: Schema.Types.Mixed },
+const communicationLogSchema = new mongoose.Schema({
+  audience: { type: mongoose.Schema.Types.Mixed},
   message: { type: String, required: true },
   sentAt: { type: Date, default: Date.now },
   status: { type: String, enum: ['SENT', 'FAILED'], default: 'SENT' },
 });
 
-const CommunicationLog = mongoose.model("CommunicationLog", communicationLogSchema);
+const CommunicationLog = mongoose.model('CommunicationLog', communicationLogSchema);
 
-export default CommunicationLog;
+module.exports = CommunicationLog;

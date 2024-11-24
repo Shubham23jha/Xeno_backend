@@ -1,8 +1,7 @@
-import mongoose from "mongoose";
-import dotenv from "dotenv";
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
 
-// Load environment variables from the .env file
-dotenv.config({ path: "../.env" });
+require("dotenv").config({ path: "../.env" });
 
 const connectDB = async () => {
   try {
@@ -43,7 +42,6 @@ const gracefulShutdown = (msg, callback) => {
   });
 };
 
-// Handle termination signals to gracefully shut down the connection
 process.on("SIGINT", () => {
   gracefulShutdown("app termination", () => {
     process.exit(0);
@@ -56,5 +54,4 @@ process.on("SIGTERM", () => {
   });
 });
 
-// Export the connectDB function
-export default connectDB;
+module.exports = connectDB;

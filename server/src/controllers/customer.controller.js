@@ -1,11 +1,8 @@
-// customer.controller.js
-import { body, validationResult } from "express-validator";
-import Customer from "../models/Customer.js";
+const Customer = require("../models/Customer");
+const { body, validationResult } = require("express-validator");
 
-const createCustomer = async (req, res) => {
+exports.createCustomer = async (req, res) => {
   try {
-    console.log("[x] Received request to create customer with data:", req.body);
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       console.error("[x] Validation error:", errors.array());
@@ -14,28 +11,32 @@ const createCustomer = async (req, res) => {
 
     const { name, email } = req.body;
 
+    // Check for name and email fields
     if (!name || !email) {
       return res.status(400).json({ error: "Name and email are required" });
     }
 
+    // Check for valid email format
     if (!/^\S+@\S+\.\S+$/.test(email)) {
       return res
         .status(400)
         .json({ error: "Email must be a valid email address" });
     }
 
+    // Create a new customer object
     const customer = new Customer({ name, email });
+
+    // Save the customer to the database
     await customer.save();
 
     res.status(201).json(customer);
-    console.log("[x] Response sent to client with status 201:", customer);
   } catch (err) {
     console.error("[x] Error creating customer:", err);
     res.status(400).json({ error: err.message });
   }
 };
 
-const validateCreateCustomer = [
+exports.validateCreateCustomer = [
   body("name").notEmpty().withMessage("Name is required"),
   body("email")
     .notEmpty()
@@ -44,7 +45,13 @@ const validateCreateCustomer = [
     .withMessage("Email must be a valid email address"),
 ];
 
-export default {
-  createCustomer,
-  validateCreateCustomer,
+exports.getCustomers = async (req, res) => {
+  try {
+    const customers = await Customer.find({});
+
+    res.status(200).json(customers);
+  } catch (err) {
+    console.error("[x] Error fetching customers:", err);
+    res.status(500).json({ error: "Failed to fetch customers" });
+  }
 };

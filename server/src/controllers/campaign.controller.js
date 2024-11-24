@@ -1,31 +1,19 @@
-import { validationResult, body } from "express-validator";
-import CommunicationLog from "../models/CommunicationLog.js";
-import Customer from "../models/Customer.js";
+const { validationResult, body } = require("express-validator");
+const CommunicationLog = require("../models/CommunicationLog");
+const Customer = require("../models/Customer");
 
-export const createAudience = async (req, res) => {
+exports.createAudience = async (req, res) => {
   try {
-    console.log("Received request to create audience:", req.body);
-
     // Validation
     await validateCreateAudienceRequest(req);
 
     const { rules, message, logicalOperator } = req.body;
-    console.log(
-      "Validation successful. Rules:",
-      rules,
-      "Message:",
-      message,
-      "LogicalOperator:",
-      logicalOperator
-    );
     const audience = await getAudienceSize(rules, logicalOperator);
     const audienceSize = audience.length;
-    console.log("Audience size:", audienceSize);
     audience.push({ audienceSize });
     const communicationLog = new CommunicationLog({ audience, message });
     await communicationLog.save();
 
-    console.log("Communication log saved:", communicationLog);
     sendCampaign(communicationLog);
 
     res.status(201).json(communicationLog);
@@ -35,9 +23,8 @@ export const createAudience = async (req, res) => {
   }
 };
 
-export const getCampaigns = async (req, res) => {
+exports.getCampaigns = async (req, res) => {
   try {
-    console.log("Received request to get campaigns");
     const campaigns = await CommunicationLog.find().sort({ sentAt: -1 });
     res.json(campaigns);
   } catch (err) {
@@ -46,15 +33,13 @@ export const getCampaigns = async (req, res) => {
   }
 };
 
-export const checkAudienceSize = async (req, res) => {
+exports.checkAudienceSize = async (req, res) => {
   try {
-    console.log("Received request to check audience size:", req.body);
     await validateCreateAudienceRequest(req);
 
     const { rules, logicalOperator } = req.body;
     const audience = await getAudienceSize(rules, logicalOperator);
 
-    console.log("Audience size checked:", audience.length);
     res.json({ audienceSize: audience.length });
   } catch (err) {
     console.error("Error in checkAudienceSize:", err.message);
@@ -63,8 +48,6 @@ export const checkAudienceSize = async (req, res) => {
 };
 
 const validateCreateAudienceRequest = async (req) => {
-  console.log("Validating request:", req.body);
-
   const validations = [
     body("rules").isArray().withMessage("Rules must be an array"),
     body("rules.*.field")
@@ -108,13 +91,6 @@ const validateCreateAudienceRequest = async (req) => {
 };
 
 const getAudienceSize = async (rules, logicalOperator) => {
-  console.log(
-    "Getting audience size for rules:",
-    rules,
-    "with logical operator:",
-    logicalOperator
-  );
-
   const queryConditions = rules.map((rule) => {
     const condition = {};
     condition[rule.field] = {
@@ -130,15 +106,12 @@ const getAudienceSize = async (rules, logicalOperator) => {
     logicalOperator === "AND"
       ? { $and: queryConditions }
       : { $or: queryConditions };
-  console.log("Query generated:", query);
 
   const customers = await Customer.find(query);
   const audience = customers.map((customer) => ({
     name: customer.name,
     email: customer.email,
   }));
-
-  console.log("Audience found:", audience);
 
   return audience;
 };
@@ -176,11 +149,6 @@ const getMongoOperator = (operator) => {
 };
 
 const sendCampaign = async (communicationLog) => {
-  console.log(
-    "Simulating sending campaign for communication log:",
-    communicationLog
-  );
-
   // Simulate sending the campaign to a dummy vendor API
   const vendorResponses = [
     { id: communicationLog._id, status: "SENT" },

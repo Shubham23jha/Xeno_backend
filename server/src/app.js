@@ -1,12 +1,9 @@
-import express from "express";
-import cors from "cors";
-import connectDB from "./config/db.config.js";
-import dotenv from "dotenv";
-import passport from "./services/auth.service.js";
-import session from "express-session";
-
-dotenv.config({ path: "./.env" });
-
+const express = require("express");
+const cors = require("cors");
+const connectDB = require("./config/db.config");
+const passport = require("./services/auth.service");
+const session = require("express-session");
+require("dotenv").config({ path: "../.env" });
 
 const app = express();
 
@@ -20,9 +17,14 @@ app.use(
 app.use(express.json());
 app.use(
   session({
-    secret: "your-secret-key",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
+    cookie: {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+    },
   })
 );
 app.use(passport.initialize());
@@ -32,17 +34,11 @@ app.use(passport.session());
 connectDB();
 
 // Define routes
-
-
-import authRoutes from "./routes/auth.routes.js";
-import customerRoutes from "./routes/customer.routes.js";
-import orderRoutes from "./routes/order.routes.js";
-import campaignRoutes from "./routes/campaign.routes.js";
-
-app.use("/api/auth", authRoutes);
-app.use("/api/customers", customerRoutes);
-app.use("/api/orders", orderRoutes);
-app.use("/api/campaigns", campaignRoutes);
+app.use("/api/auth", require("./routes/auth.routes"));
+app.use("/api/customers", require("./routes/customer.routes"));
+app.use("/api/orders", require("./routes/order.routes"));
+app.use("/api/campaigns", require("./routes/campaign.routes"));
+app.use("/api/auth", require("./routes/auth.routes"));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
