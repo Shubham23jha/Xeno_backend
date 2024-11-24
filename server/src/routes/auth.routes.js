@@ -16,24 +16,16 @@ router.get(
 
 
     if (req.isAuthenticated() && req.user) {
-      const frontendUrl = 'https://xeno-frontend-alpha.vercel.app/home/auth/success'
+      const frontendUrl = 'https://xeno-frontend-alpha.vercel.app/auth/success'
       const redirectUrl = `${frontendUrl}?isAuthenticated=true&displayName=${encodeURIComponent(
         req.user.displayName
       )}&email=${encodeURIComponent(req.user.email)}`;
       res.redirect(redirectUrl);
     }
     // Successful authentication, redirect to the client application
-    res.redirect('https://xeno-frontend-alpha.vercel.app/home');
+    res.redirect('https://xeno-frontend-alpha.vercel.app');
   }
 );
-
-router.get('/status', (req, res) => {
-  if (req.isAuthenticated()) {
-    res.json({ isAuthenticated: true });
-  } else {
-    res.json({ isAuthenticated: false });
-  }
-});
 
 export default router;
 
