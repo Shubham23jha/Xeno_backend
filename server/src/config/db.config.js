@@ -35,23 +35,6 @@ mongoose.connection.on("disconnected", () => {
   console.log("Mongoose disconnected from DB");
 });
 
-const gracefulShutdown = (msg, callback) => {
-  mongoose.connection.close(() => {
-    console.log(`Mongoose disconnected through ${msg}`);
-    callback();
-  });
-};
 
-process.on("SIGINT", () => {
-  gracefulShutdown("app termination", () => {
-    process.exit(0);
-  });
-});
-
-process.on("SIGTERM", () => {
-  gracefulShutdown("App termination", () => {
-    process.exit(0);
-  });
-});
 
 module.exports = connectDB;

@@ -35,7 +35,6 @@ exports.createOrder = async (req, res) => {
     const order = new Order({
       customerId,
       amount,
-      status: "PENDING",
     });
     await order.save(); // Save the order
 
